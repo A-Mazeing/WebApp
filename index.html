@@ -37,8 +37,9 @@
       isIos = true;
     }
 
-    // Funktion zum Initialisieren des Modells und der Webcam
     async function init() {
+    // Überprüfe, ob das Canvas bereits erstellt wurde
+    if (!canvasCreated) {
         const modelURL = URL + 'model.json';
         const metadataURL = URL + 'metadata.json';
 
@@ -60,7 +61,12 @@
             webCamVideo.style.width = width + 'px';
             webCamVideo.style.height = height + 'px';
         } else {
-            document.getElementById("webcam-container").appendChild(webcam.canvas);
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            document.getElementById("webcam-container").appendChild(canvas);
+            webcam.canvas = canvas; // Setze das Webcam-Canvas neu
+            canvasCreated = true; // Setze die Flagge auf true, um anzuzeigen, dass das Canvas erstellt wurde
         }
 
         // Container für die Klassifizierungen
@@ -70,7 +76,13 @@
         }
         webcam.play();
         window.requestAnimationFrame(loop);
+    } else {
+        // Wenn das Canvas bereits erstellt wurde, führe nur die Webcam-Initialisierung aus
+        await webcam.setup();
+        webcam.play();
+        window.requestAnimationFrame(loop);
     }
+}
 
     // Funktion zum Aktualisieren und Vorhersagen mit der Webcam
     async function loop() {
